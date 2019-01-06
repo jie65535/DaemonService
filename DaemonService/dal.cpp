@@ -115,11 +115,11 @@ DAL::DAL()
     {
         // 如果打开失败 退出程序
         qCritical()<<database.lastError();
-        qFatal("Database open failed.");
+        qFatal("Database open failed.（数据库打开失败！错误信息已经输出到日志）");
     }
     else
     {
-        qDebug("Open database success!");
+        qDebug("Open database success!（数据库打开成功！）");
         QStringList tables = database.tables();  //获取数据库中的表
         qDebug() << QString("tablas count： %1").arg(tables.count()); //打印表的个数
 

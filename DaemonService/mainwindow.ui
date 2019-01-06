@@ -53,9 +53,7 @@ p, li { white-space: pre-wrap; }
      </rect>
     </property>
     <property name="plainText">
-     <string>9876
-9877
-</string>
+     <string>7001</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
