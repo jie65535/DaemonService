@@ -18,7 +18,7 @@
  */
 void DaemonService::incomingConnection(qintptr socketDescriptor)
 {
-    qDebug("new connect is connect %d（有新的连接进入！）", socketDescriptor);
+    // qDebug("new connect is connect %d（有新的连接进入！）", socketDescriptor);
     Worker *worker = new Worker(socketDescriptor, this->m_portList);
     QThreadPool::globalInstance()->start(worker);
 }

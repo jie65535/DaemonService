@@ -33,7 +33,8 @@ SOURCES += \
     worker.cpp \
     md5.cpp \
     dal.cpp \
-    log.cpp
+    log.cpp \
+    ipsechelper.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -42,7 +43,8 @@ HEADERS += \
     md5.h \
     dal.h \
     model.h \
-    log.h
+    log.h \
+    ipsechelper.h
 
 FORMS += \
         mainwindow.ui

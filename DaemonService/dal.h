@@ -24,6 +24,14 @@ public:
 
     QList<WhiteListItem> getWhiteList(QString ip);
 
+    bool isExistsBlackList(int port);
+    bool isExistsBlackList(QString ip);
+
+    bool addItemToBlackList(int port);
+    bool addItemToBlackList(QString ip, int port);
+
+    QString getPortList();
+    void setPortList(QString portList);
 private:
     DAL();
 };

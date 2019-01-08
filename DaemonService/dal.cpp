@@ -88,10 +88,79 @@ QList<WhiteListItem> DAL::getWhiteList(QString ip)
     return whitelist;
 }
 
+bool DAL::isExistsBlackList(int port)
+{
+    QSqlQuery query;
+    query.prepare("SELECT * FROM blacklist WHERE IP='any' AND Remarks = ?");
+    query.addBindValue(port);
+    if(!query.exec())
+    {
+        qCritical()<<query.lastError();
+        return false;
+    }
+    return query.next();
+}
+bool DAL::isExistsBlackList(QString ip)
+{
+    QSqlQuery query;
+    query.prepare("SELECT * FROM blacklist WHERE IP=?");
+    query.addBindValue(ip);
+    if(!query.exec())
+    {
+        qCritical()<<query.lastError();
+        return false;
+    }
+    return query.next();
+}
+
+bool DAL::addItemToBlackList(int port)
+{
+    return addItemToBlackList("any", port);
+}
+
+bool DAL::addItemToBlackList(QString ip, int port)
+{
+    QSqlQuery query;
+    query.prepare("INSERT INTO blacklist(IP, Time, Remarks) VALUES(?, datetime(CURRENT_TIMESTAMP,'localtime'), ?)");
+    query.addBindValue(ip);
+    query.addBindValue(port);
+    if(!query.exec())
+    {
+        qCritical()<<query.lastError();
+        return false;
+    }
+    return true;
+}
+
+QString DAL::getPortList()
+{
+    QSqlQuery query;
+    if(!query.exec("SELECT * FROM portlist"))
+    {
+        qCritical()<<query.lastError();
+        return "";
+    }
+    if (query.next())
+        return query.value(0).toString();
+    else
+        return "";
+}
+
+void DAL::setPortList(QString portList)
+{
+    QSqlQuery query;
+    query.prepare("UPDATE portlist SET value=?");
+    query.addBindValue(portList);
+    if(!query.exec())
+    {
+        qCritical()<<query.lastError();
+    }
+}
+
 DAL::DAL()
 {
     //打印Qt支持的数据库驱动
-    qDebug()<<QSqlDatabase::drivers();
+    //qDebug()<<QSqlDatabase::drivers();
 
     QSqlDatabase database;
     // 检测默认连接是否已经存在
@@ -121,9 +190,9 @@ DAL::DAL()
     {
         qDebug("Open database success!（数据库打开成功！）");
         QStringList tables = database.tables();  //获取数据库中的表
-        qDebug() << QString("tablas count： %1").arg(tables.count()); //打印表的个数
+        //qDebug() << QString("tablas count： %1").arg(tables.count()); //打印表的个数
 
-        if (tables.count() < 3)
+        if (tables.count() < 4)
         {
 /*
   SQL语句：
@@ -153,6 +222,8 @@ CREATE TABLE blacklist (
                        "IP VARCHAR,"
                        "Time DATETIME,"
                        "Remarks TEXT);");
+            query.exec("CREATE TABLE portlist (value TEXT);");
+            query.exec("INSERT INTO portlist VALUES('7001');");
             if (!database.commit())
                 qCritical()<<database.lastError();
         }
