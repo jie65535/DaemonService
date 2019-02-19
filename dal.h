@@ -24,13 +24,16 @@ public:
     bool updateWhiteList(QString ip, QList<int> portList);
 
     QList<WhiteListItem> getWhiteList(QString ip);
+    void removeFromWhiteList(QString ip);
     void removeFromWhiteList(QString ip, QList<int> ports);
 
     bool isExistsBlackList(int port);
     bool isExistsBlackList(QString ip);
 
     bool addItemToBlackList(int port);
+    bool addItemToBlackList(QString ip);
     bool addItemToBlackList(QString ip, int port);
+    void removeFromBlackList(QString ip);
 
     QString getPortList();
     void setPortList(QString portList);

@@ -195,3 +195,51 @@ void MainWindow::on_btnRemoveIP_clicked()
         qDebug("IP:%s 已移出指定端口白名单", ip.toStdString().data());
     }
 }
+
+void MainWindow::on_btnAddBlackIP_clicked()
+{
+    QString ip = ui->txtBlackIP->text();
+    if (ip.isEmpty())
+    {
+        log_append("请输入要加入黑名单的IP");
+        return;
+    }
+    if (DAL::instance().isExistsBlackList(ip))
+    {
+        log_append("该IP已存在黑名单");
+        return;
+    }
+
+    auto list = DAL::instance().getWhiteList(ip);
+    if (list.length() > 0)
+    {
+        log_append("正在将该ip从白名单中移出...");
+        for (int i = 0; i < list.length(); ++i)
+            IpsecHelper::removeItemFromWhiteList(ip, list[i].Port);
+        DAL::instance().removeFromWhiteList(ip);
+        log_append("移出白名单完成");
+    }
+
+    IpsecHelper::addItemToBlackList(ip);
+    DAL::instance().addItemToBlackList(ip);
+    log_append("黑名单添加完成");
+}
+
+void MainWindow::on_btnRemoveBlackIP_clicked()
+{
+    QString ip = ui->txtBlackIP->text();
+    if (ip.isEmpty())
+    {
+        log_append("请输入要移出黑名单的IP");
+        return;
+    }
+    if (!DAL::instance().isExistsBlackList(ip))
+    {
+        log_append("该IP不存在于黑名单");
+        return;
+    }
+
+    IpsecHelper::addItemToBlackList(ip);
+    DAL::instance().removeFromBlackList(ip);
+    log_append("黑名单移出完成");
+}

@@ -49,10 +49,7 @@ void Worker::run()
             // 为了防止短时间内多次连接，检查最后一次连接的时间距离现在有多久
             // 如果不超过30秒，则将其从白名单中移除
 
-
-
-
-            for (int i = this->m_portList.length(); i >= 0; --i)
+            for (int i = this->m_portList.length() - 1; i >= 0; --i)
             {
                 int port = this->m_portList[i];
                 int index;
@@ -75,7 +72,7 @@ void Worker::run()
                         // 如果倒退十年，时间还没到，说明禁止时间未结束，直接结束本次处理
                         if (list[index].LastUpdateTime.addYears(-10) > QDateTime::currentDateTime())
                         {
-                            qDebug("IP:%s 已拒绝", ip.toStdString().data(), port);
+                            qDebug("IP:%s 已拒绝", ip.toStdString().data());
                             goto end;
                         }
                         else

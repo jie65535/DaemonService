@@ -16,12 +16,18 @@ void IpsecHelper::addItemToBlackList(QString ip, int port)
 {
     ExeCmd("add", "blacklist", ip, port);
 }
-
+void IpsecHelper::addItemToBlackList(QString ip)
+{
+    ExeCmd("add", "blacklist", ip);
+}
 void IpsecHelper::removeItemFromBlackList(QString ip, int port)
 {
     ExeCmd("delete", "blacklist", ip, port);
 }
-
+void IpsecHelper::removeItemFromBlackList(QString ip)
+{
+    ExeCmd("delete", "blacklist", ip);
+}
 void IpsecHelper::addItemToBlackList(int port)
 {
     ExeCmd("add", "blacklist", "any", port);
@@ -41,6 +47,25 @@ void IpsecHelper::ExeCmd(QString cmd, QString filterlist, QString srcaddr, int p
             << "protocol=tcp"
             << "mirrored=yes"
             << QString("dstport=%1").arg(port)
+            );
+    p.waitForStarted();
+    p.waitForFinished();
+}
+
+void IpsecHelper::ExeCmd(QString cmd, QString filterlist, QString srcaddr)
+{
+    QProcess p(nullptr);
+    p.start("netsh",
+            QStringList() << "ipsec"
+            << "static"
+            << cmd
+            << "filter"
+            << ("filterlist=" + filterlist)
+            << ("srcaddr=" + srcaddr)
+            << "dstaddr=me"
+            << "protocol=tcp"
+            << "mirrored=yes"
+            << "dstport=any"
             );
     p.waitForStarted();
     p.waitForFinished();
