@@ -51,22 +51,3 @@ void IpsecHelper::ExeCmd(QString cmd, QString filterlist, QString srcaddr, int p
     p.waitForStarted();
     p.waitForFinished();
 }
-
-void IpsecHelper::ExeCmd(QString cmd, QString filterlist, QString srcaddr)
-{
-    QProcess p(nullptr);
-    p.start("netsh",
-            QStringList() << "ipsec"
-            << "static"
-            << cmd
-            << "filter"
-            << ("filterlist=" + filterlist)
-            << ("srcaddr=" + srcaddr)
-            << "dstaddr=me"
-            << "protocol=tcp"
-            << "mirrored=yes"
-            << "dstport=any"
-            );
-    p.waitForStarted();
-    p.waitForFinished();
-}

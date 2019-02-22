@@ -21,8 +21,7 @@ public:
 
     static void addItemToBlackList(int port);
 private:
-    static void ExeCmd(QString cmd, QString filterlist, QString srcaddr, int port);
-    static void ExeCmd(QString cmd, QString filterlist, QString srcaddr);
+    static void ExeCmd(QString cmd, QString filterlist, QString srcaddr, int port = 0);
 };
 
 #endif // IPSECHELPER_H
