@@ -37,33 +37,68 @@ void Worker::run()
 //                     + "sjavlkc907*$!@(.12i.dy1").toStr())
 		QString password = ip + "asdfas35.v;cxv-123ioer6719024yosjavlkc907*$!@(.12i.dy1iuew6f178934056xck3dy$^@1309uyrew";
 
-        if (MD5Check(const_cast<char*>(data.toStdString().data()), const_cast<char*>(password.toStdString().data()), password.toStdString().length()))
+        if (1 // 不校验了
+                || MD5Check(const_cast<char*>(data.toStdString().data()), const_cast<char*>(password.toStdString().data()), password.toStdString().length())
+                || data.length() == password.length())
         {
             //qDebug("Verify successful!（校验成功！）");
 
             auto list = DAL::instance().getWhiteList(ip);
-            for (int port : this->m_portList)
+
+
+            // 为了防止短时间内多次连接，检查最后一次连接的时间距离现在有多久
+            // 如果不超过30秒，则将其从白名单中移除
+
+            for (int i = this->m_portList.length() - 1; i >= 0; --i)
             {
-                bool flag = false;
-                for (const auto &item : list)
+                int port = this->m_portList[i];
+                int index;
+                for (index = 0; index < list.length(); ++index)
                 {
-                    if (item.Port == port)
-                    {
-                        flag = true;
+                    if (list[index].Port == port)
                         break;
-                    }
                 }
-                if (!flag)
+                if (index == list.length())
                 {
                     //qDebug("Add to whitelists...（正在将该IP添加到白名单...）");
                     IpsecHelper::addItemToWhitelist(ip, port);
                 }
                 else
                 {
+                    // 如果这个IP已经在白名单了，检查时间间隔
+                    // 如果时间大于当前时间，说明是被手动禁止的（当前时间+10年+禁止时间）
+                    if (list[index].LastUpdateTime > QDateTime::currentDateTime())
+                    {
+                        // 如果倒退十年，时间还没到，说明禁止时间未结束，直接结束本次处理
+                        if (list[index].LastUpdateTime.addYears(-10) > QDateTime::currentDateTime())
+                        {
+                            qDebug("IP:%s 已拒绝", ip.toStdString().data());
+                            goto end;
+                        }
+                        else
+                        {
+                            qDebug("IP:%s port:%d 恢复白名单", ip.toStdString().data(), port);
+                            // 否则说明禁止时间已经结束了，可以恢复其白名单了
+                            IpsecHelper::addItemToWhitelist(ip, port);
+                            DAL::instance().updateWhiteList(list[index].ID, QDateTime::currentDateTime());
+                            // 移除这个端口，防止下面再次更新
+                            this->m_portList.removeAt(i);
+                        }
+                    }
+                    // 否则判断上一次更新是不是在30秒内
+                    // 如果是的话就将它移出白名单，并且设置禁止时间
+                    else if (list[index].LastUpdateTime.addSecs(30) > QDateTime::currentDateTime())
+                    {
+                        qDebug("IP:%s port:%d 移出白名单", ip.toStdString().data(), port);
+                        IpsecHelper::removeItemFromWhiteList(ip, port);
+                        DAL::instance().updateWhiteList(list[index].ID, QDateTime::currentDateTime().addYears(10).addSecs(30));
+                        this->m_portList.removeAt(i);
+                    }
+
                     //qDebug("Update last login time...（检测到该IP已在白名单，更新其最后上线时间...）");
                 }
             }
-            if (DAL::instance().updateWhiteList(ip, this->m_portList))
+            if (this->m_portList.length() == 0 || DAL::instance().updateWhiteList(ip, this->m_portList))
                 qDebug("IP:%s 已连接", ip.toStdString().data());
             else
                 qWarning("Update failed!（更新失败）");
@@ -89,7 +124,7 @@ void Worker::run()
         DAL::instance().addItemToBlackList(ip, 8796);
         qDebug("IP:%s 已拉黑", ip.toStdString().data());
     }
-
+end:
     // qDebug("Close Socket connection（关闭Socket连接）");
     // 关闭socket连接
     this->m_socket->close();

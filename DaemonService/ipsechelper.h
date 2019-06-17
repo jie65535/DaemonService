@@ -15,11 +15,13 @@ public:
     static void removeItemFromWhiteList(QString ip, int port);
 
     static void addItemToBlackList(QString ip, int port);
+    static void addItemToBlackList(QString ip);
     static void removeItemFromBlackList(QString ip, int port);
+    static void removeItemFromBlackList(QString ip);
 
     static void addItemToBlackList(int port);
 private:
-    static void ExeCmd(QString cmd, QString filterlist, QString srcaddr, int port);
+    static void ExeCmd(QString cmd, QString filterlist, QString srcaddr, int port = 0);
 };
 
 #endif // IPSECHELPER_H

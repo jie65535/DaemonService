@@ -88,6 +88,29 @@ QList<WhiteListItem> DAL::getWhiteList(QString ip)
     return whitelist;
 }
 
+void DAL::removeFromWhiteList(QString ip)
+{
+    QString sql = QString("DELETE FROM whitelist WHERE IP=?");
+    QSqlQuery query;
+    query.prepare(sql);
+    query.addBindValue(ip);
+    if(!query.exec())
+        qCritical()<<query.lastError();
+}
+
+void DAL::removeFromWhiteList(QString ip, QList<int> ports)
+{
+    QString portStr = QString("%1").arg(ports[0]);
+    for (int i = 0; i < ports.length(); ++i)
+        portStr += QString(",%1").arg(ports[i]);
+    QString sql = QString("DELETE FROM whitelist WHERE IP=? AND Port in (%1)").arg(portStr);
+    QSqlQuery query;
+    query.prepare(sql);
+    query.addBindValue(ip);
+    if(!query.exec())
+        qCritical()<<query.lastError();
+}
+
 bool DAL::isExistsBlackList(int port)
 {
     QSqlQuery query;
@@ -117,7 +140,10 @@ bool DAL::addItemToBlackList(int port)
 {
     return addItemToBlackList("any", port);
 }
-
+bool DAL::addItemToBlackList(QString ip)
+{
+    return addItemToBlackList(ip, -1);
+}
 bool DAL::addItemToBlackList(QString ip, int port)
 {
     QSqlQuery query;
@@ -130,6 +156,16 @@ bool DAL::addItemToBlackList(QString ip, int port)
         return false;
     }
     return true;
+}
+
+void DAL::removeFromBlackList(QString ip)
+{
+    QString sql = QString("DELETE FROM blacklist WHERE IP=?");
+    QSqlQuery query;
+    query.prepare(sql);
+    query.addBindValue(ip);
+    if(!query.exec())
+        qCritical()<<query.lastError();
 }
 
 QString DAL::getPortList()
@@ -228,4 +264,18 @@ CREATE TABLE blacklist (
                 qCritical()<<database.lastError();
         }
     }
+}
+
+bool DAL::updateWhiteList(int id, QDateTime lastUpdateTime)
+{
+    QSqlQuery query;
+    query.prepare("UPDATE whitelist SET LastUpdateTime=? WHERE ID=?");
+    query.addBindValue(lastUpdateTime);
+    query.addBindValue(id);
+    if(!query.exec())
+    {
+        qCritical()<<query.lastError();
+        return false;
+    }
+    return true;
 }

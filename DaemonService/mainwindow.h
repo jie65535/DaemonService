@@ -27,6 +27,12 @@ private slots:
 
     void on_btnAddIP_clicked();
 
+    void on_btnRemoveIP_clicked();
+
+    void on_btnAddBlackIP_clicked();
+
+    void on_btnRemoveBlackIP_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

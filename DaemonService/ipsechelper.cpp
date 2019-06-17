@@ -16,12 +16,18 @@ void IpsecHelper::addItemToBlackList(QString ip, int port)
 {
     ExeCmd("add", "blacklist", ip, port);
 }
-
+void IpsecHelper::addItemToBlackList(QString ip)
+{
+    ExeCmd("add", "blacklist", ip);
+}
 void IpsecHelper::removeItemFromBlackList(QString ip, int port)
 {
     ExeCmd("delete", "blacklist", ip, port);
 }
-
+void IpsecHelper::removeItemFromBlackList(QString ip)
+{
+    ExeCmd("delete", "blacklist", ip);
+}
 void IpsecHelper::addItemToBlackList(int port)
 {
     ExeCmd("add", "blacklist", "any", port);
